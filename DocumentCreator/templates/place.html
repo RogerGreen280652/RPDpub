@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/vuejs-datepicker"></script>
+    <script src="https://unpkg.com/vuejs-datepicker/dist/locale/translations/ru.js"></script>
+    <title>Документы</title>
+  </head>
+  <body>
+    <div id="app">
+        <div class="container">
+            <nav class="navbar navbar-light bg-light">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Место в структуре ОПОП ВО</a>
+                    <div>
+                        <!--<button class="btn btn-outline-primary">Назад</button>-->
+                        <button @click="submit" class="btn btn-outline-success">Сохранить</button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="row">
+                <div class="col-3">
+                    <ul class="list-group">
+                        <li class="list-group-item" >Титульный лист</li>
+                        <li class="list-group-item" >Цели и задачи</li>
+                        <li class="list-group-item active" aria-current="true">Место в структуре</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <div class="card" style="margin: 20px">
+                        <div class="card-body">
+                            <form ref="form" method="POST">
+                                {% csrf_token %}
+
+                                <input type="hidden" name="document_id" value="{{ document_id }}">
+
+
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col">
+                                        <div>
+                                            <label class="form-label">Предшествующие дисциплины:</label>
+                                            <textarea v-model="prevDiscipline" name="prevDiscipline" :class="prevDisciplineClass" rows="3"></textarea>
+                                            <div class="invalid-feedback" v-html="prevDiscipline_errors">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col">
+                                        <div>
+                                            <label class="form-label">Последующие дисциплины:</label>
+                                            <textarea v-model="nextDiscipline" name="nextDiscipline" :class="nextDisciplineClass" rows="3"></textarea>
+                                            <div class="invalid-feedback" v-html="nextDiscipline_errors">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                nextDiscipline: "{{ nextDiscipline }}",
+                nextDisciplineClass: {
+                    'form-control': true,
+                    'is-invalid': false
+                },
+                nextDiscipline_errors: "{{ nextDiscipline_errors }}",
+                prevDiscipline: "{{ prevDiscipline }}",
+                prevDisciplineClass: {
+                    'form-control': true,
+                    'is-invalid': false
+                },
+                prevDiscipline_errors: "{{ prevDiscipline_errors }}"
+            },
+            methods: {
+                submit() {
+                    this.$refs.form.submit()
+                }
+            },
+            mounted() {
+                if(this.nextDiscipline_errors) {
+                    this.nextDisciplineClass['is-invalid'] = true
+                }
+                if(this.prevDiscipline_errors) {
+                    this.prevDisciplineClass['is-invalid'] = true
+                }
+            },
+            components: {
+                
+            }
+        })
+      </script>
+  </body>
+</html>

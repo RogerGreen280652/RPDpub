@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/vuejs-datepicker"></script>
+    <script src="https://unpkg.com/vuejs-datepicker/dist/locale/translations/ru.js"></script>
+    <title>Документы</title>
+  </head>
+  <body>
+    <div id="app">
+        <div class="container">
+            <nav class="navbar navbar-light bg-light">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Цели и задачи</a>
+                    <div>
+                        <!--<button class="btn btn-outline-primary">Назад</button>-->
+                        <button @click="submit" class="btn btn-outline-success">Сохранить</button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="row">
+                <div class="col-3">
+                    <ul class="list-group">
+                        <li class="list-group-item" >Титульный лист</li>
+                        <li class="list-group-item active" aria-current="true">Цели и задачи</li>
+                        <li class="list-group-item">Место в структуре</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <div class="card" style="margin: 20px">
+                        <div class="card-body">
+                            <form ref="form" method="POST">
+                                {% csrf_token %}
+
+                                <input type="hidden" name="document_id" value="{{ document_id }}">
+
+
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col">
+                                        <div>
+                                            <label class="form-label">Цели:</label>
+                                            <textarea v-model="targets" name="targets" :class="targetsClass" rows="3"></textarea>
+                                            <div class="invalid-feedback" v-html="targets_errors">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col">
+                                        <div>
+                                            <label class="form-label">Задачи:</label>
+                                            <div class="input-group">
+                                                <input v-model="task" type="text" :class="tasksClass" placeholder="Задача" aria-label="Задача">
+                                                <button @click="addTask" class="btn btn-outline-secondary" type="button">Добавить</button>
+                                                <div class="invalid-feedback" v-html="tasks_errors">
+                                                </div>
+                                            </div>
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr v-for="(t, index) in tasks">
+                                                        <th scope="row" v-html="index + 1"></th>
+                                                        <td v-html="t"></td>
+                                                        <td>
+                                                            <button @click="del(index)" type="button" class="btn btn-warning btn-sm">Удалить</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <input v-for='t in tasks' type="text" name="tasks[]" :value="t" style="display: none">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                targets: "{{ targets }}",
+                task: "",
+                targets_errors: "{{ targets_errors }}",
+                tasks_errors: "{{ tasks_errors }}",
+                targetsClass: {
+                    'form-control': true,
+                    'is-invalid': false
+                },
+                tasksClass: {
+                    'form-control': true,
+                    'is-invalid': false
+                },
+                tasks: [
+                    {% for task in tasks %}
+                        "{{ task }}",
+                    {% endfor %}
+                ]
+            },
+            methods: {
+                addTask() {
+                    if(this.task.length < 2  || this.task.length > 255) {
+                        this.tasks_errors = "Задача не может быть длинной менее 2 и более 255"
+                        this.tasksClass['is-invalid'] = true
+                        return
+                    }
+                    this.tasksClass['is-invalid'] = false
+                    this.tasks.push(this.task)
+                    this.task = ""
+                },
+                del(id) {
+                    this.tasks.splice(id, 1)
+                },
+                submit() {
+                    this.$refs.form.submit()
+                }
+            },
+            mounted() {
+                if(this.targets_errors) {
+                    this.targetsClass['is-invalid'] = true
+                }
+                if(this.tasks_errors) {
+                    this.tasksClass['is-invalid'] = true
+                }
+            },
+            components: {
+                
+            }
+        })
+      </script>
+  </body>
+</html>

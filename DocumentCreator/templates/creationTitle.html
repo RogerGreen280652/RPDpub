@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/vuejs-datepicker"></script>
+    <script src="https://unpkg.com/vuejs-datepicker/dist/locale/translations/ru.js"></script>
+    <title>Документы</title>
+  </head>
+  <body>
+    <div id="app">
+        <div class="container">
+            <nav class="navbar navbar-light bg-light">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Работа с титульным листом</a>
+                    <div>
+                        <a class="btn btn-outline-primary" href="/">Назад</a>
+                        <button class="btn btn-outline-success" @click="submit">Сохранить</button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="row">
+                <div class="col-3">
+                    <ul class="list-group">
+                        <li class="list-group-item active" aria-current="true">Титульный лист</li>
+                        <li class="list-group-item">Цели и задачи</li>
+                        <li class="list-group-item">Место в структуре</li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <div class="card" style="margin: 20px">
+                        <div class="card-body">
+                            <form ref="form" method="POST">
+                                {% csrf_token %}
+                                
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col">
+                                        <div>
+                                            <label class="form-label">Дата:</label>
+                                            <vuejs-datepicker bootstrap-styling format="dd.MM.yyyy" v-model="date" :language="ru" name="date"></vuejs-datepicker>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col">
+                                        <div>
+                                            <label class="form-label">Наименование дисциплины(модуля):</label>
+                                            <select v-model="discipline_name" :class="disciplineNameClass" name="discipline_name" aria-label="Наименование">
+                                                    <option selected>Выберите дисциплину</option>
+                                                {% for discipline in discipline_list %}
+                                                    <option>{{ discipline.discipline_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="invalid-feedback" v-html="discipline_name_error">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col">
+                                        <div>
+                                            <label class="form-label">Направленность (профиль) подготовки:</label>
+                                            <select v-model="direction" :class="directionClass" name="direction" aria-label="Направленность">
+                                                    <option selected>Выберите стандарт</option>
+                                                {% for standart in standarts_list %}
+                                                    <option>{{ standart.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="invalid-feedback" v-html="direction_error">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                date: new Date(),
+                discipline_name_error: "{{ discipline_name_error }}",
+                direction_error: "{{ direction_error }}",
+                discipline_name: "{{ discipline_name }}",
+                disciplineNameClass: {
+                    'form-select': true,
+                    'is-invalid': false
+                },
+                directionClass: {
+                    'form-select': true,
+                    'is-invalid': false
+                },
+                direction: "{{ direction }}",
+                ru: vdp_translation_ru.js,
+            },
+            methods: {
+                submit() {
+                    this.$refs.form.submit()
+                }
+            },
+            mounted() {
+                if(this.discipline_name_error) {
+                    this.disciplineNameClass['is-invalid'] = true
+                }
+                if(this.direction_error) {
+                    this.directionClass['is-invalid'] = true
+                }
+            },
+            components: {
+                vuejsDatepicker
+            }
+        })
+      </script>
+  </body>
+</html>
